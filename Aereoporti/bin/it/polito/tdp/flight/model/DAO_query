@@ -1,0 +1,351 @@
+// 1. SELEZIONARE UN AIRPORT (DI PARTENZA) E STAMPARE TUTTI GLI AIRPORT DI ARRIVO.
+		
+	public List<Airport> getArrivalsAirportbyDeparturesAirports(Airport a) {
+			
+			String sql = "	select distinct *, r.destination_airport_id "
+					+ "from route r, airport a, airline air"
+					+ "where a.airport_id = r.source_airport_id"
+					+ "and a.airport_id = ?group by r.destination_airport_id" ;
+			
+			List<Airport> list = new ArrayList<>() ;
+			
+			try {
+				Connection conn = DBConnect.getConnection() ;
+	
+				PreparedStatement st = conn.prepareStatement(sql) ;
+				
+				ResultSet res = st.executeQuery() ;
+				
+				while(res.next()) {
+					list.add( new Airport(
+							res.getInt("Airport_ID"),
+							res.getString("name"),
+							res.getString("city"),
+							res.getString("country"),
+							res.getString("IATA_FAA"),
+							res.getString("ICAO"),
+							res.getDouble("Latitude"),
+							res.getDouble("Longitude"),
+							res.getFloat("timezone"),
+							res.getString("dst"),
+							res.getString("tz"))) ;
+				}
+				
+				conn.close();
+				
+				return list ;
+			} catch (SQLException e) {
+	
+				e.printStackTrace();
+				return null ;
+			}
+		}
+
+	// 2. SELEZIONARE UN AIRPORT (DI ARRIVO) E STAMPARE TUTTI GLI AIRPORT DI PARTENZA
+		
+	public List<Airport> getDeparturesAirportbyArrivalsAirports(Airport a) {
+			
+			String sql = "	select distinct *, r.source_airport_id "
+					+ "from route r, airport a, airline air 	"
+					+ "where a.airport_id = r.destination_airport_id	"
+					+ "and a.airport_id = ?	"
+					+ "group by r.source_airport_id" ;
+			
+			List<Airport> list = new ArrayList<>() ;
+			
+			try {
+				Connection conn = DBConnect.getConnection() ;
+	
+				PreparedStatement st = conn.prepareStatement(sql) ;
+				
+				ResultSet res = st.executeQuery() ;
+				
+				while(res.next()) {
+					list.add( new Airport(
+							res.getInt("Airport_ID"),
+							res.getString("name"),
+							res.getString("city"),
+							res.getString("country"),
+							res.getString("IATA_FAA"),
+							res.getString("ICAO"),
+							res.getDouble("Latitude"),
+							res.getDouble("Longitude"),
+							res.getFloat("timezone"),
+							res.getString("dst"),
+							res.getString("tz"))) ;
+				}
+				
+				conn.close();
+				
+				return list ;
+			} catch (SQLException e) {
+	
+				e.printStackTrace();
+				return null ;
+			}
+		}
+		
+	//	 3. SELEZIONARE UN AIRPORT DI PARTENZA E UNO DI ARRIVO E STAMPARE TUTTE LE COMPAGNIE CHE SVOLGONO QUELLA TRATTA
+	
+	public List<Airline> getAirlinesBYAirportsID(Airport a,Airport a1) {
+			String sql = "select distinct  *"
+					+ "  from airport a1, airport a2, route r, airline air "
+					+ "where a1.name = ? "
+					+ " and a2.name = ?"
+					+ " and air.airline_id = r.airline_id"
+					+ "and a1.airport_id = r.source_airport_id"
+					+ "and a2.airport_id = r.destination_airport_id ";
+			
+			List<Airline> list = new ArrayList<>() ;
+			
+			try {
+				Connection conn = DBConnect.getConnection() ;
+	
+				PreparedStatement st = conn.prepareStatement(sql) ;
+				
+				st.setString(1, a.getName());   /// sostituisce ?
+				st.setString(2, a1.getName());
+				
+				ResultSet res = st.executeQuery() ;
+				
+				while(res.next()) {
+					list.add( new Airline(
+							res.getInt("Airline_ID"),
+							res.getString("name"),
+							res.getString("alias"),
+							res.getString("iata"),
+							res.getString("icao"),
+							res.getString("callsign"),
+							res.getString("country"),
+							res.getString("active"))) ;
+					
+					}
+				
+				conn.close();
+				
+				return list ;
+				
+			} catch (SQLException e) {
+	
+				e.printStackTrace();
+				return null ;
+			}
+		}	
+			
+	//4. SELEZIONARE UN ID COMPAGNIA AEREA E STAMPARE TUTTE LE ROTTE ORDINATO PER SIGLA DI AIRPORT DI PARTENZA
+	
+	public List<Route> getRotteByAirline(Airline airline) {
+			String sql ="select distinct * "
+					+ "from  route r, airline air "
+					+ "where air_ID = ? "
+					+ "order by r.source_airport ASC" ;
+	
+			List<Route> list = new ArrayList<>() ;
+			
+			try {
+				Connection conn = DBConnect.getConnection() ;
+	
+				PreparedStatement st = conn.prepareStatement(sql) ;
+				st.setInt(1, airline.getAirlineId());
+				
+				ResultSet res = st.executeQuery() ;
+				
+				while(res.next()) {
+					list.add( new Route(
+							res.getString("Airline"),
+							res.getInt("Airline_ID"),
+							res.getString("source_airport"),
+							res.getInt("source_airport_id"),
+							res.getString("destination_airport"),
+							res.getInt("destination_airport_id"),
+							res.getString("codeshare"),
+							res.getInt("stops"),
+							res.getString("equipment"))) ;
+				}
+				
+				conn.close();
+				
+				return list ;
+			} catch (SQLException e) {
+	
+				e.printStackTrace();
+				return null ;
+			}
+	
+		
+		}
+	
+	//5. SELEZIONARE UN AIRPORT DI PARTENZA E VISUALIZZARE LA FREQUENZA DELLE COMPAGNIE AEREE CHE VOLANO DA QUELL’AIRPORT
+	
+	public List<Airline> getFreqAirlBYAirportsID(Airport a) {
+			String sql = "select distinct air.name, count(*) as cont"
+					+ " from airline air, airport a, route r "
+					+ "where a.airport_id = r.source_airport_id "
+					+ "and r.airline_id = air.airline_id "
+					+ "and a.name = ?"
+					+ "group by air.name having count(*)";
+			
+			List<Airline> list = new ArrayList<>() ;
+			
+			try {
+				Connection conn = DBConnect.getConnection() ;
+	
+				PreparedStatement st = conn.prepareStatement(sql) ;
+				
+				st.setString(1, a.getName());   /// sostituisce ?
+				
+				ResultSet res = st.executeQuery() ;
+				
+				while(res.next()) {
+					list.add( new Airline(
+							res.getInt("Airline_ID"),
+							res.getString("name"),
+							res.getString("alias"),
+							res.getString("iata"),
+							res.getString("icao"),
+							res.getString("callsign"),
+							res.getString("country"),
+							res.getString("active"))) ;
+					
+					}
+				
+				conn.close();
+				
+				return list ;
+				
+			} catch (SQLException e) {
+	
+				e.printStackTrace();
+				return null ;
+			}
+		}	
+	
+	//6. SELEZIONARE UN AIRPORT DI ARRIVO E VISUALIZZARE TUTTE LE LATITUDINI DELL’AIRPORT DI PARTENZA, ORDINATE DA SUD VERSO NORD (LATITUDINE DECRESCENTE).
+	
+	public List<Airport> getLatitudeDAbyArrivalsAirports(Airport a) {
+		
+		String sql = "SELECT distinct a2.*"
+				+ " from airport a1, airport a2, airline air, route r "
+				+ "where r.destination_airport_id = a1.airport_id  "
+				+ "and a1.name= ? "
+				+ "and a2.Airport_ID = r.source_airport_id "
+				+ "order by a2.latitude DESC" ;
+		
+		List<Airport> list = new ArrayList<>() ;
+		
+		try {
+			Connection conn = DBConnect.getConnection() ;
+	
+			PreparedStatement st = conn.prepareStatement(sql) ;
+			
+			ResultSet res = st.executeQuery() ;
+			
+			while(res.next()) {
+				list.add( new Airport(
+						res.getInt("Airport_ID"),
+						res.getString("name"),
+						res.getString("city"),
+						res.getString("country"),
+						res.getString("IATA_FAA"),
+						res.getString("ICAO"),
+						res.getDouble("Latitude"),
+						res.getDouble("Longitude"),
+						res.getFloat("timezone"),
+						res.getString("dst"),
+						res.getString("tz"))) ;
+			}
+			
+			conn.close();
+			
+			return list ;
+		} catch (SQLException e) {
+	
+			e.printStackTrace();
+			return null ;
+		}
+	}
+	
+	//7. SELEZIONARE UN AIRPORT DI ARRIVO E VISUALIZZARE TUTTE LE LATITUDINI DELL’AIRPORT DI PARTENZA,
+	//   ORDINATE DA NORD VERSO SUD (LATITUDINE CRESCENTE), CON LATITUDINE <= 40
+	
+	public List<Airport> getLatitudeAAbyDeparturesAirports(Airport a) {
+		
+		String sql = "SELECT distinct a2.* "
+				+ "from airport a1, airport a2, airline air, route r"
+				+ " where r.destination_airport_id = a1.airport_id  "
+				+ "and a1.name= ? "
+				+ "and a2.Airport_ID = r.source_airport_id "
+				+ "and a2.latitude<= 40 "
+				+ "order by a2.latitude ASC" ;
+		
+		List<Airport> list = new ArrayList<>() ;
+		
+		try {
+			Connection conn = DBConnect.getConnection() ;
+	
+			PreparedStatement st = conn.prepareStatement(sql) ;
+			
+			ResultSet res = st.executeQuery() ;
+			
+			while(res.next()) {
+				list.add( new Airport(
+						res.getInt("Airport_ID"),
+						res.getString("name"),
+						res.getString("city"),
+						res.getString("country"),
+						res.getString("IATA_FAA"),
+						res.getString("ICAO"),
+						res.getDouble("Latitude"),
+						res.getDouble("Longitude"),
+						res.getFloat("timezone"),
+						res.getString("dst"),
+						res.getString("tz"))) ;
+			}
+			
+			conn.close();
+			
+			return list ;
+		} catch (SQLException e) {
+	
+			e.printStackTrace();
+			return null ;
+		}
+	}	
+	
+	//8. SELEZIONARE UN AIRPORT DI PARTENZA E UNO DI ARRIVO E STAMPARE NUM TRATTE
+	
+	public int numTRATTE(Airport a,Airport a1) {
+		String sql = "select count(*)"
+				+ "  from airport a1, airport a2, route r "
+				+ "  where a1.name = ? "
+				+ "  and a2.name = ?";
+				
+		
+		int result=0;
+		
+		try {
+			Connection conn = DBConnect.getConnection() ;
+	
+			PreparedStatement st = conn.prepareStatement(sql) ;
+			
+			st.setString(1, a.getName());   /// sostituisce ?
+			st.setString(2, a1.getName());
+			
+			ResultSet res = st.executeQuery() ;
+			
+			// ATTENZIONEEEEEEE
+			res.first();
+			result= res.getInt(1);
+			
+			conn.close();
+			
+			} catch (SQLException e) {
+	
+			e.printStackTrace();
+			throw new RuntimeException("Error in database query",e);
+	
+		}
+		return result ;
+	}	
+
+	

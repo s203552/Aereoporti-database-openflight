@@ -1,0 +1,144 @@
+1) raggiungibili data Airline e aereoporto di partenza (dijkstra)
+2) raggiungibili da query data Airline
+3) tutti raggiungibili data airlaine
+4) CAMMINO MINIMO e TEMPO TOT CAMMINO 
+5) successori
+6) predecessori
+7) raggiungibili (visita in  profondità)
+8) numero di raggiungibili (visita in  profondità)
+9)BELLMANcalcolaPercorso(Airport partenza)
+
+//get raggiungibili	
+	 
+	public List<AirportDistance> getDestinations(Airline airline, Airport start) {
+
+			List<AirportDistance> list = new ArrayList<>();
+
+			for (Airport end : reachedAirports) {
+				DijkstraShortestPath<Airport, DefaultWeightedEdge> dsp = new DijkstraShortestPath<>(graph, start, end);
+				GraphPath<Airport, DefaultWeightedEdge> p = dsp.getPath();
+				if (p != null) {
+					list.add(new AirportDistance(end, p.getWeight(), p.getEdgeList().size()));
+				}
+			}
+			list.sort(new Comparator<AirportDistance>() {
+				@Override
+				public int compare(AirportDistance o1, AirportDistance o2) {
+					return Double.compare(o1.getDistance(), o2.getDistance());
+				}
+			});
+		return list;
+		}
+	 
+	
+	public List<Airport> getAeroportiRaggiunti(Airline air)
+		{
+			return dao.getAeroportiRaggiunti(air);
+		}
+	
+	
+	public List<Airport> getReachedAirports(Airline airline) {  //reached=raggiunti
+			if (this.myAirline == null || !this.myAirline.equals(airline)) {
+				this.myAirline = airline;
+				
+				FlightDAO dao = new FlightDAO();
+			//prendo lista e trasformo in mappa	
+				List<Integer> airportIds = dao.getReachedAirportsID(this.myAirline);				
+				this.reachedAirports = new ArrayList<Airport>();
+				for (Integer id : airportIds)
+					this.reachedAirports.add(airportMap.get(id));
+			//ordino per nome
+				this.reachedAirports.sort(new Comparator<Airport>() {
+					@Override
+					public int compare(Airport o1, Airport o2) {
+						return o1.getName().compareTo(o2.getName());
+					}
+				});
+
+			}
+
+			return this.reachedAirports;
+		}
+
+	/**
+	 * CAMMINO MINIMO e TEMPO TOT CAMMINO 
+	 */
+		
+		public String calcolaPercorso(Airport p, Airport a) {
+//		this.creaGrafo();
+		String s="";
+		double tottime=0;
+		DijkstraShortestPath<Airport, DefaultWeightedEdge> dsp = new DijkstraShortestPath<>(graph, p,a);
+		GraphPath<Airport, DefaultWeightedEdge> path = dsp.getPath();
+			if(path == null)  return null;
+			List<Airport> vertici = new ArrayList<>();
+			
+			tottime = ((path.getEdgeList().size()) * 30 -60) + path.getWeight();  //- StazP e StazA
+
+			for(DefaultWeightedEdge e : path.getEdgeList()){
+				vertici.add(graph.getEdgeTarget(e));
+				}
+		s+= "Percorso: "+ vertici.toString() + "\n"+ "Tempo tot: " + tottime;	
+		System.out.println(s);
+		return s;
+		
+	}
+		
+	public List<Airport> trovaSucessori(Airport s) {	
+			List<Airport> successori = new ArrayList<Airport>();
+			successori.addAll(Graphs.successorListOf(graph,s));
+						
+			return successori;
+		}
+	public List<Airport> trovaPredecessori(Airport s) {
+			List<Airport>predecessori = new ArrayList<Airport>();
+			predecessori.addAll(Graphs.predecessorListOf(graph,s));
+			return predecessori;
+		}
+		
+	
+	
+	//	quanti e quali altri stati sono raggiungibili(attraverso uno o piu archi)
+	
+	List<Airport> vicini = new ArrayList<Airport>();
+		
+	public List<Airport> getRaggiungibiliInAmpiezza(Airport partenza)
+		{	
+			BreadthFirstIterator<Airport, DefaultWeightedEdge> visita = 
+					new BreadthFirstIterator<Airport, DefaultWeightedEdge>( this.graph, partenza);
+			
+			while(visita.hasNext()) //Finchè ogni nodo ha un successore
+			{
+				Airport s = visita.next(); //Prendo il successore
+				vicini.add(s); //e lo metto nella lista
+			}
+			return vicini;
+		}
+	public int raggiungibili(){
+		return vicini.size();
+	}
+	
+	
+	
+	//BELLMAN
+	public String BELLMANcalcolaPercorso(Airport partenza) {
+		String ritorno = new String();
+		
+		BellmanFordShortestPath<Airport, DefaultWeightedEdge> bellman = 
+				new BellmanFordShortestPath<Airport, DefaultWeightedEdge>(graph, partenza);
+		
+		Map<Airport, Double> mappa = new HashMap();
+		
+		for (Airport arrivo: graph.vertexSet()) {
+			if (!partenza.equals(arrivo)) {
+				double peso = bellman.getCost(arrivo);
+				mappa.put(arrivo, peso);
+			}
+		}
+		
+		for (Airport f: mappa.keySet()) {
+			ritorno = ritorno + f.getName() + " = " + mappa.get(f) ;
+		}
+		
+		return ritorno;
+	}

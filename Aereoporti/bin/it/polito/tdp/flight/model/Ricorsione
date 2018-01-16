@@ -1,0 +1,128 @@
+/**
+	 * RICORSIONE 1
+	 */
+		//GET OTTIMO di tutti le gare
+		private List<Airport> all;
+		
+		private Map<String,Integer> FantaAirport;
+		private Map<String,List<Airport>> mapAirport;
+		private List<String> best2;
+		//METODO FINALE
+		public List<String> getOttimo(){
+			List<String> parziale=new ArrayList<>();
+			best2=new ArrayList<>();		
+			recursive(0,parziale);
+			return best2;
+		}
+
+		//RICORSIONE
+		private void recursive(int livello, List<String> parziale) {
+			
+			all=new LinkedList<>(this.getAllAirports()); //di tutti le gare
+			for(String s: parziale){
+				for(Airport p:mapAirport.get(s)){
+					all.removeAll(Graphs.neighborListOf(graph, p));
+				}
+			}
+			if(best2.isEmpty()|| parziale.size()<best2.size()){				
+					best2.clear();
+					best2.addAll(parziale);
+					System.out.println(best2);
+				}		
+			for(String s:FantaAirport.keySet()){			
+				if(parziale.isEmpty() || s.compareTo(parziale.get(parziale.size()-1))>0){				
+					parziale.add(s);			
+					recursive(livello+1,parziale);			
+					parziale.remove(s);
+				}			
+			}		
+		}
+		
+	/**
+	 * RICORSIONE 2
+	 */
+		//METODO FINALE
+		//implementazione metodo
+		public List<DefaultEdge> trovaSequenza(){
+				List<DefaultEdge> best=new ArrayList<DefaultEdge> ();
+				for( Airport d: graph.vertexSet()){
+						List<DefaultEdge> parziale=new ArrayList<DefaultEdge>();
+						scegli(parziale,0,best,d);	
+				}
+				return best;	
+			}
+		//metodo
+		//RICORSIONE
+		private void scegli(List<DefaultEdge> parziale, int livello, List<DefaultEdge> best, Airport d) {
+				
+				// lo svolgo sugli archi perchè se no non considero alcune partite,
+				// in quanto la squadra svolge piu partite sia in casa che in trasferta
+				if(parziale.size() > best.size()){ 	best.clear();  //se parziale >cammino MAX  -> sostituisco
+													best.addAll(parziale);
+													System.out.println(best.toString());} 
+				else{
+					  for(DefaultWeightedEdge e: graph.outgoingEdgesOf(d)){    
+						  //solo ARCHI USCENTI graph.outgoingEdgesOf lo dice testo
+						if(graph.getEdgeWeight(e)==1){
+							if(!parziale.contains(e))  
+										{ parziale.add(e);
+										scegli(parziale,livello+1,best,graph.getEdgeTarget(e));  
+										//graph.getEdgeTarget LANCIA RICORSIONE sui team
+										parziale.remove(e);	}
+						 }
+					   }
+					}
+			}
+			 
+			
+	/**
+	 * RICORSIONE 3
+	 
+		a. Quando l’utente seleziona la funzione “Domino”, occorre ricercare e stampare la più lunga sequenza di
+			partite “concatenate”, in cui ciascuna squadra sconfitta in una partita diviene vincitrice nella partita
+			successiva. Ad esempio, la sequenza potrà essere: TeamA, TeamC, TeamK, se nella partita TeamA-TeamC è
+			risultato vincitore TeamA, e nella partita TeamC-TeamK è risultato vincitore TeamC.
+		b. Suggerimento: dal punto di vista del grafo, occorre trovare un cammino (aperto), di lunghezza massima, che
+			attraversi unicamente archi con peso +1. Gli archi con peso 0 oppure -1 non devono essere considerati.
+		c. Si noti che il cammino potrebbe non essere semplice (cioè lo stesso vertice potrebbe comparire più volte).
+			Ad esempio: A-B, B-C, C-D, D-A, A-E, E-F. In questo caso A ha vinto su B e su E, ma ha perso da D. In ogni
+			caso, ogni arco può essere utilizzato una sola volta (ad esempio, abbiamo potuto usare A-E, ma non sarebbe
+			stato lecito ripetere di nuovo A-B).
+		d. Al termine della ricerca, si stampi tale cammino.
+	*/	
+		private List<Airport> best;
+		private List<DefaultWeightedEdge> bestArchi;
+			
+		public List<Airport> getLongestPath(){
+				List<DefaultWeightedEdge> parzialeArchi= new ArrayList<>();
+				bestArchi = new ArrayList<>();
+				best = new ArrayList<>();			
+				recursive(parzialeArchi);			
+				for(DefaultWeightedEdge edge: bestArchi){
+					best.add(graph.getEdgeSource(edge));
+				}		
+				best.add(graph.getEdgeTarget(bestArchi.get(bestArchi.size()-1)));	
+				System.out.println("best: "+best.toString());
+				return best;
+			}
+		
+		private void recursive(List<DefaultWeightedEdge> parzialeArchi) {
+				// condizione terminazione == tutte le possibili ==> termina da solo
+				//controllo se la dim di parziale è > best aggiorno best
+				//System.out.println(parzialeArchi.toString()+"\n");			
+				if(parzialeArchi.size() >= bestArchi.size()){
+					bestArchi.clear();
+					bestArchi.addAll(parzialeArchi);
+					System.out.println("bestArchi: "+bestArchi.toString()+"\n");
+				}			
+				for(DefaultWeightedEdge edge : graph.edgeSet()){
+					if(graph.getEdgeWeight(edge)==1){
+						if(!parzialeArchi.contains(edge) && (parzialeArchi.size()==0 || graph.getEdgeTarget(parzialeArchi.get(parzialeArchi.size()-1)).equals(graph.getEdgeSource(edge)))){
+							parzialeArchi.add(edge);
+							recursive(parzialeArchi);
+							parzialeArchi.remove(edge);
+						}
+					}
+				}
+						
+			}

@@ -1,0 +1,292 @@
+public List<AirportAndNum> simula(int k){
+			 sim=new Simulator(k,graph);
+			return  sim.getPasseggeri();
+		 }
+
+-------------------
+
+package it.polito.tdp.flight.model;
+public class Event implements Comparable<Event>{
+	private Airport airport;
+	private int time;
+	/**	 * @param airport	 * @param passeggeri	 * @param time   * @param type	 */
+	public Event(Airport airport, int time) {
+		super();
+		this.airport = airport;
+		this.time = time;
+	}
+	public Airport getAirport() {		return airport;	}
+	public void setAirport(Airport airport) {		this.airport = airport;	}
+	public int getTime() {		return time;}
+	public void setTime(int time) {	this.time = time;}
+	@Override
+	public int compareTo(Event other) {	return this.time-other.time;}
+}
+
+--------------------
+
+package it.polito.tdp.flight.model;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import org.jgrapht.graph.DefaultWeightedEdge;
+import org.jgrapht.graph.SimpleDirectedWeightedGraph;
+
+public class Simulator {
+	
+	private int K;
+	private int array[]=new int[18];
+	private SimpleDirectedWeightedGraph<Airport,DefaultWeightedEdge> graph;
+	private Map<Airport,Integer> presenti;
+	private PriorityQueue<Event> queue;
+
+	public Simulator(int k, SimpleDirectedWeightedGraph<Airport, DefaultWeightedEdge> graph) {
+		super();
+		K = k;
+		this.graph = graph;
+		queue=new PriorityQueue<>();
+		presenti=new HashMap<Airport,Integer>();
+		for(Airport atemp:graph.vertexSet()){
+			presenti.put(atemp, 0);
+		}
+		int i=7;
+		for(int pos=0;pos<18;pos++){
+			array[pos]=i;
+			i=i+2;
+		}
+	}	
+	public void run(){
+		while (!queue.isEmpty()) {
+			Event e = queue.poll();		
+			int time=e.getTime();
+			int timePartenza=0;
+			for(int i:array){
+				if(i>=time){
+					timePartenza=i;
+					break;
+				}
+			}
+			
+			Airport arrivo=e.getAirport();			
+			int size= graph.outgoingEdgesOf(arrivo).size();
+			if(size!=0){
+			int destID= (int)(Math.random()*size);		
+			List<DefaultWeightedEdge> ltemp=new ArrayList<>();
+			for(DefaultWeightedEdge arco:graph.outgoingEdgesOf(arrivo)){
+				ltemp.add(arco);
+			}
+			Airport destinazione=graph.getEdgeTarget(ltemp.get(destID));	
+			if(timePartenza!=0){
+			int tArrivo=(int)(timePartenza+graph.getEdgeWeight(ltemp.get(destID)));
+		    Event eNew=new Event(destinazione,tArrivo);
+			queue.add(eNew);
+			presenti.put(arrivo, presenti.get(arrivo)-1);
+			presenti.put(destinazione,presenti.get(destinazione)+1);	
+			}			
+			}					
+			}		
+	}
+	
+	
+	public void popolaAereoporti(){
+		while(K!=0){
+		for(Airport atemp:graph.vertexSet()){
+			if(K!=0){
+			double prob=Math.random();
+			if(prob>=0.5){
+				presenti.put(atemp,presenti.get(atemp)+1);
+				K--;
+			}
+		}
+		}
+		}
+		
+		for(Airport atemp:presenti.keySet()){
+			int passeggeri=presenti.get(atemp);
+			if(passeggeri !=0){
+				for(int i=0;i<passeggeri;i++){
+				Event e=new Event(atemp,6);
+				queue.add(e);
+				}
+			}
+		}
+		
+	}
+	
+	public List<AirportAndNum> getPasseggeri(){
+		this.popolaAereoporti();
+		this.run();
+		List<AirportAndNum> ltemp=new ArrayList<>();
+		for(Airport atemp:this.presenti.keySet()){
+			if(presenti.get(atemp)!=0)
+				ltemp.add(new AirportAndNum(atemp,presenti.get(atemp)));
+		}
+		
+		Collections.sort(ltemp);
+		return ltemp;
+	}
+	
+	
+}
+
+---------------------------------------------------------------------------------------------------------------
+
+
+public List<AirportAndNum> doSimula(int K){
+			Airport parigi=this.airportMap.get(1382);
+			Airport newyork=this.airportMap.get(3697);
+			sim2=new Simulator2(K,graph,parigi,newyork);
+			return sim2.getPasseggeri();
+			
+-----------
+
+package it.polito.tdp.flight.model;
+public class Event2 implements Comparable<Event2>{
+	private int passeggero;
+	private double tempo;
+	private Airport aereoporto;
+	private int tratta;
+	public Event2(int passeggero, double tempo, Airport aereoporto, int tratta) {
+		super();
+		this.passeggero = passeggero;
+		this.tempo = tempo;
+		this.aereoporto = aereoporto;
+		this.tratta = tratta;
+	}
+	public int getPasseggero() {		return passeggero;	}
+	public void setPasseggero(int passeggero) {		this.passeggero = passeggero;	}
+	public double getTempo() {		return tempo;	}
+	public void setTempo(double tempo) {		this.tempo = tempo;	}
+	public Airport getAereoporto() {		return aereoporto;	}
+	public void setAereoporto(Airport aereoporto) {		this.aereoporto = aereoporto;	}
+	public int getTratta() {		return tratta;	}
+	public void setTratta(int tratta) {		this.tratta = tratta;	}
+	@Override
+	public int compareTo(Event2 other) {	
+		return Double.compare(this.tempo, other.getTempo());	}
+}
+
+---------
+
+package it.polito.tdp.flight.model;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Random;
+
+import org.jgrapht.Graphs;
+import org.jgrapht.graph.DefaultWeightedEdge;
+import org.jgrapht.graph.SimpleDirectedWeightedGraph;
+
+public class Simulator2 {
+	
+	private Map<Airport,Integer> passeggeri;
+	private int K;
+	private PriorityQueue<Event2> queue;
+	private SimpleDirectedWeightedGraph<Airport,DefaultWeightedEdge> graph;
+	private Airport Parigi;
+	private Airport NewYork;
+	private double array[];
+	
+	public Simulator2(int K,SimpleDirectedWeightedGraph<Airport,DefaultWeightedEdge> graph,Airport Parigi,Airport NewYork) {
+		super();
+		this.K=K;
+		this.graph=graph;
+		this.Parigi=Parigi;
+		this.NewYork=NewYork;
+		queue=new PriorityQueue<>();
+		passeggeri=new HashMap<>();
+		array=new double[9];
+		
+		double ora=7;
+		for(int i=0;i<9;i++){
+			array[i]=ora;
+			
+			ora=ora+2;
+		}
+		
+		for(Airport atemp: graph.vertexSet()){
+			passeggeri.put(atemp, 0);
+		}
+		
+	}
+	
+	public void popola(){
+		for(int i=1;i<=K/2;i++){
+			queue.add(new Event2(i,6,Parigi,1));
+			passeggeri.put(Parigi, passeggeri.get(Parigi)+1);
+		}
+		
+		for(int i=1;i<=K/2;i++){
+			queue.add(new Event2(i,6,NewYork,1));
+			passeggeri.put(NewYork, passeggeri.get(NewYork)+1);
+		}
+		
+	}
+	
+	public void run(){
+		this.popola();
+		
+		while(!queue.isEmpty()){
+			Event2 e=queue.poll();
+			
+			Airport arrivo=e.getAereoporto();
+			
+			
+			int size=Graphs.successorListOf(graph, arrivo).size();
+			//se riesce a partire
+			if(size!=0 && e.getTratta()!=5){
+				Random r=new Random();
+				int pos=r.nextInt(size);
+			Airport destinazione=Graphs.successorListOf(graph, arrivo).get(pos);
+			passeggeri.put(arrivo,passeggeri.get(arrivo)-1);
+			passeggeri.put(destinazione,passeggeri.get(destinazione)+1);
+			double oraPart= getOraPartenza(e.getTempo());
+			Event2 enew=new Event2(e.getPasseggero(),oraPart+graph.getEdgeWeight(graph.getEdge(arrivo, destinazione)),destinazione,e.getTratta()+1);
+			queue.add(enew);
+			
+			}
+		}
+		
+	}
+
+	private double getOraPartenza(double tempo) {
+		double ora=-1;
+		boolean  trovato=false;
+		for(int i=0;i<9;i++){
+			if(tempo<=array[i]){
+				ora=array[i];
+				trovato=true;
+				break;
+			}
+		}
+		//per orario maggiore delle 23
+		if(trovato==false)
+			ora=7;
+		
+		return ora;
+	}
+	
+	
+	public List<AirportAndNum> getPasseggeri(){
+		this.run();
+		List<AirportAndNum> stats=new ArrayList<>();
+		for(Airport atemp:this.passeggeri.keySet()){
+			if(passeggeri.get(atemp)!=0){
+				stats.add(new AirportAndNum(atemp,passeggeri.get(atemp)));
+			}
+		
+		}
+		Collections.sort(stats);
+		return stats;
+	}
+
+}
+		

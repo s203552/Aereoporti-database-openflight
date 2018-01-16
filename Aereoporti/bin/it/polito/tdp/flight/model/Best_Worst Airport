@@ -1,0 +1,30 @@
+	/**
+	 * GET BEST/WORST AIRPORT
+	 * @return
+	 */
+		
+	
+	public Airport getBestAirport() {
+		Airport best=null ;
+		int max = Integer.MIN_VALUE ;	
+		for(Airport d: this.graph.vertexSet()) {		
+			int peso = 0 ;
+		//outgoingEdgesOf(d)) e incomingEdgesOf(d)) perchè è directed...se no solo outgoingEdgesOf(d))
+			for(DefaultWeightedEdge e: graph.outgoingEdgesOf(d)) {	peso += graph.getEdgeWeight(e) ;}			
+			for(DefaultWeightedEdge e: graph.incomingEdgesOf(d)) {	peso -= graph.getEdgeWeight(e) ;	}
+			if(peso>max) {	max = peso ;	best = d ;	}
+		}	return best ;
+	}
+	public Airport getWorstAirport() {
+		Airport loser=null ;
+		int peggiore=Integer.MAX_VALUE;	
+		for(Airport d: this.graph.vertexSet()) {		
+			int peso = 0 ;
+			for(DefaultWeightedEdge e: graph.outgoingEdgesOf(d)) {	peso += graph.getEdgeWeight(e) ;}			
+			for(DefaultWeightedEdge e: graph.incomingEdgesOf(d)) {	peso -= graph.getEdgeWeight(e) ;	}
+			if(peso<peggiore) {	peggiore = peso ;	loser = d ;	}
+			System.out.println("Driver peggiore "+ peggiore);
+		}	return loser ;
+	
+	
+	}	

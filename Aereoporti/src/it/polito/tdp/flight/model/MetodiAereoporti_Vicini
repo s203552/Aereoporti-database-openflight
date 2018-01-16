@@ -1,0 +1,67 @@
+AEREOPORTI VICINI
+1) stampare l’aeroporto NON RAGGIUNGIBILE da “Los Angeles Intl” più VICINO a “Los Angeles Intl” stesso.
+2) getPiuVicino(int fiumicinoId) con scali
+3) getPiuVicinoByVoloDiretto(int fiumicinoId)
+
+
+
+// stampare l’aeroporto NON RAGGIUNGIBILE da “Los Angeles Intl” più VICINO a “Los Angeles Intl” stesso.
+	 
+	 public Airport getVicinissimo(int losAngeles){
+			Airport los=this.airportMap.get(losAngeles);
+			Airport vicino=null;
+			List<Airport> nonRaggiungibili=new ArrayList<>();
+			nonRaggiungibili.addAll(graph.vertexSet());
+			nonRaggiungibili.removeAll(ci.connectedSetOf(los));
+			
+			double minDistance=Integer.MAX_VALUE;
+			for(Airport atemp: nonRaggiungibili){
+				if(!atemp.equals(los)){
+				double d=LatLngTool.distance(new LatLng(atemp.getLatitude(),atemp.getLongitude()),
+						new LatLng(los.getLatitude(),los.getLongitude()) , LengthUnit.KILOMETER);
+				if(d<minDistance){
+					vicino=atemp;
+					minDistance=d;
+				}
+				}
+			}
+			
+			return vicino;
+			
+		}
+		
+ //aereoporto pi� vicino tra quelli raggiungibili anche facendo scali		
+	 
+	 public Airport getPiuVicino(int fiumicinoId){
+		 Airport fiumicino= this.airportMap.get(fiumicinoId);
+		 Airport vicino=fiumicino;
+		 Double distance=0.0;
+		ConnectivityInspector<Airport,DefaultWeightedEdge> ci=new ConnectivityInspector<>(graph);
+		 for(Airport atemp :ci.connectedSetOf(fiumicino)){
+			 DijkstraShortestPath<Airport,DefaultWeightedEdge> djk =new DijkstraShortestPath<>(graph,fiumicino,atemp);
+			 if(djk.getPathLength()<distance){
+				 distance=djk.getPathLength();
+				 vicino=atemp;
+			 }
+			 
+		 }
+		 return vicino;
+		 
+	 }
+
+//aereoporto pi� vicino tra quelli raggiungibili con voli diretti
+	 
+	 public Airport getPiuVicinoByVoloDiretto(int fiumicinoId){
+		 Airport fiumicino= this.airportMap.get(fiumicinoId);
+		 Airport vicino=fiumicino;
+		 Double distance=0.0;
+		 for(DefaultWeightedEdge e: graph.outgoingEdgesOf(fiumicino)){
+			 if(graph.getEdgeWeight(e)<distance){
+				 distance=graph.getEdgeWeight(e);
+				 vicino=graph.getEdgeTarget(e);
+			 }
+			 
+		 }
+		 return vicino;
+		 
+	 }

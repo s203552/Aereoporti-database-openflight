@@ -1,0 +1,79 @@
+CONNECTIVITY INSPECTOR 
+	 
+1)  Escludendo gli aeroporti con zero rotte, determinare se nel grafo ottenuto è possibile da ogni aeroporto
+	raggiungere ogni altro aeroporto.----->>> fortemente connesso? 
+2) lista degli aereoporti connessi
+3) numero degli aereoporti connessi
+4) trovo (max) degli aereoporti connessi
+5) trovo (max size) aereoporti connessi
+6) trovo 5 achi con peso minimo di (max size)
+
+------------------------------------
+
+	private ConnectivityInspector<Airport,DefaultWeightedEdge> ci;
+
+	/* Escludendo gli aeroporti con zero rotte, determinare se nel grafo ottenuto è possibile da ogni aeroporto
+	raggiungere ogni altro aeroporto.
+	----->>> fortemente connesso?  */	
+	
+	public String isConnesso () {
+		ci = new ConnectivityInspector<>(this.graph);
+	    if (ci.isGraphConnected()){ return "Il grafo--> fortemente connesso";	 }
+		else return "il grafo---> non fortemente connesso";
+	}
+			
+	/* lista degli aereoporti connessi */
+		
+	 public List<Set<Airport>> getConn(){	
+			ci = new ConnectivityInspector<>(this.graph);
+			return ci.connectedSets();
+		}
+		
+	/* numero degli aereoporti connessi */
+		public int getNumberConn(){
+			return this.getConn().size();
+		}
+
+	/* trovo (max) degli aereoporti connessi */
+		public Set<Airport> MAXconnesso() {
+			Set<Airport> MAX=null;
+			Double size=0.0;
+			for(Set<Airport> atemp :this.getConn()){
+				 if(atemp.size()>size){
+					 size = (double) atemp.size();
+					 MAX=atemp;
+				 }	 
+			 }	 
+			return MAX;	
+		}
+	
+	/* trovo (max size) aereoporti connessi */
+		public int MAXconnessioni() {
+			return this.MAXconnesso().size();		
+		}
+			
+	/* trovo 5 achi con peso minimo di (max size) */				 
+		
+		public List<EdgePeso> get5ArchiMinWeight (){
+
+		  List<EdgePeso>  edgePeso= new  ArrayList<>();
+		  // avevo pensato di sostituire i vertici del grafo con il set trovato Max connesso per poi richiamare il metodo CreaGrafo()
+		 Set<Airport> new_vertex =this.MAXconnesso();
+		 for (Airport a1: new_vertex){
+		  for (Airport a2: new_vertex){
+			  if (! a1.equals(a2)&& a1!=null&&a2!=null){ 
+				  //peso
+					double distance=LatLngTool.distance(new LatLng(a1.getLatitude(),a1.getLongitude()),
+							new LatLng(a2.getLatitude(),a2.getLongitude()),LengthUnit.KILOMETER);
+
+					DefaultWeightedEdge e=graph.getEdge(a1, a2);
+						if(e!=null ){
+							graph.getEdgeWeight(e);
+							edgePeso.add(new EdgePeso(e,distance) );
+						}					
+				  }  
+		  }	
+		 } 
+		 Collections.sort(edgePeso);
+		 return edgePeso.subList(0, 5);
+	    }
