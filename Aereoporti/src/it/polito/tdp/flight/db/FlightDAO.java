@@ -14,6 +14,7 @@ import com.javadocmd.simplelatlng.util.LengthUnit;
 
 import it.polito.tdp.flight.model.Airline;
 import it.polito.tdp.flight.model.Airport;
+import it.polito.tdp.flight.model.AirportDistance;
 import it.polito.tdp.flight.model.Collegati;
 import it.polito.tdp.flight.model.Route;
 
@@ -90,6 +91,30 @@ public class FlightDAO {
 			}
 		}
 		
+
+	
+	public List<Airport> getAllAirportsCountry(String country) {
+		String sql = "SELECT * FROM airport where Country=?";
+		List<Airport> list = new ArrayList<>();
+		try {
+			Connection conn = DBConnect.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, country);
+			ResultSet res = st.executeQuery();
+
+			while (res.next()) {
+				list.add(new Airport(res.getInt("Airport_ID"), res.getString("name"), res.getString("city"),
+						res.getString("country"), res.getString("IATA_FAA"), res.getString("ICAO"),
+						res.getDouble("Latitude"), res.getDouble("Longitude"), res.getFloat("timezone"),
+						res.getString("dst"), res.getString("tz")));
+			}
+			conn.close();
+			return list;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException();
+		}
+	}
 	//Oggetto aereoporto da ID
 		
 	public Airport getAirportById(int id)
@@ -231,10 +256,9 @@ public class FlightDAO {
 				System.out.println("Entro");
 				while (res.next())
 				{
-					int id = Integer.parseInt(res.getString("destination_airport_id"));
-					System.out.println(id);
+					int id = Integer.parseInt(res.getString("destination_airport_id"));				
 					Airport a = this.getAirportById(id);
-					System.out.println(a.getName());
+					System.out.println(id + "  "+a.getName());
 					list.add(a);
 				}
 	
@@ -247,6 +271,7 @@ public class FlightDAO {
 			}
 		}
 		
+
 	//tutti gli aereoporti collegati da una rotta
 	
 	public List<Collegati> getCollegati(Airline air)

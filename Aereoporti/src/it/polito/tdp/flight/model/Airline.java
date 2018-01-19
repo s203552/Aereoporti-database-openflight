@@ -8,14 +8,23 @@ public class Airline {
 	private String callsign;
 	private String country;
 	private String active;
+	
 	public Airline(int airlineId, String name, String alias, String iata, String icao, String callsign, String country,
 			String active) {
 		super();
-		this.airlineId = airlineId;  	this.name = name;
-		this.alias = alias; 		this.iata = iata;
-		this.icao = icao; 		this.callsign = callsign;
-		this.country = country;		this.active = active;
+		this.airlineId = airlineId;  	
+		this.name = name;
+		this.alias = alias; 		
+		this.iata = iata;
+		this.icao = icao; 		
+		this.callsign = callsign;
+		this.country = country;		
+		this.active = active;
 		}
+	
+	public Airline(int airlineId) {
+		this.airlineId = airlineId; 
+	}
 	public int getAirlineId() {	return airlineId;	}
 	public void setAirlineId(int airlineId) {		this.airlineId = airlineId;	}
 	public String getName() {	return name;}
@@ -34,8 +43,10 @@ public class Airline {
 	public void setActive(String active) {		this.active = active;	}
 	@Override
 	public int hashCode() {
-		final int prime = 31;		int result = 1;
-		result = prime * result + airlineId;		return result;	}
+		final int prime = 31;		
+		int result = 1;
+		result = prime * result + airlineId;
+		return result;	}
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)		return true;
@@ -44,6 +55,7 @@ public class Airline {
 		Airline other = (Airline) obj;
 		if (airlineId != other.airlineId)			return false;
 		return true;}
+	
 	@Override
 	public String toString() {
 		return name;

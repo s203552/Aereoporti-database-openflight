@@ -1,13 +1,17 @@
 /**
-	 * RICORSIONE 1
-	 */
-		//GET OTTIMO di tutti le gare
-		private List<Airport> all;
+ * RICORSIONE 1
+ 
+ 	GET OTTIMO Airport di tutti le rotte
+ */
 		
+	//GET OTTIMO di tutti le gare
+		private List<Airport> all;		
 		private Map<String,Integer> FantaAirport;
 		private Map<String,List<Airport>> mapAirport;
 		private List<String> best2;
-		//METODO FINALE
+		
+	//METODO FINALE
+		
 		public List<String> getOttimo(){
 			List<String> parziale=new ArrayList<>();
 			best2=new ArrayList<>();		
@@ -15,7 +19,8 @@
 			return best2;
 		}
 
-		//RICORSIONE
+	//RICORSIONE
+		
 		private void recursive(int livello, List<String> parziale) {
 			
 			all=new LinkedList<>(this.getAllAirports()); //di tutti le gare
@@ -38,11 +43,25 @@
 			}		
 		}
 		
-	/**
-	 * RICORSIONE 2
-	 */
+/** 
+--------------------------------------------------------------
+ * RICORSIONE 2
+ 
+ 
+ 		a. Quando l’utente seleziona la funzione “Domino”, occorre ricercare e stampare la più lunga sequenza di
+			partite “concatenate”, in cui ciascuna squadra sconfitta in una partita diviene vincitrice nella partita
+			successiva. Ad esempio, la sequenza potrà essere: TeamA, TeamC, TeamK, se nella partita TeamA-TeamC è
+			risultato vincitore TeamA, e nella partita TeamC-TeamK è risultato vincitore TeamC.
+		b. Suggerimento: dal punto di vista del grafo, occorre trovare un cammino (aperto), di lunghezza massima, che
+			attraversi unicamente archi con peso +1. Gli archi con peso 0 oppure -1 non devono essere considerati.
+		c. Si noti che il cammino potrebbe non essere semplice (cioè lo stesso vertice potrebbe comparire più volte).
+			Ad esempio: A-B, B-C, C-D, D-A, A-E, E-F. In questo caso A ha vinto su B e su E, ma ha perso da D. In ogni
+			caso, ogni arco può essere utilizzato una sola volta (ad esempio, abbiamo potuto usare A-E, ma non sarebbe
+			stato lecito ripetere di nuovo A-B).
+		d. Al termine della ricerca, si stampi tale cammino.
+ */
 		//METODO FINALE
-		//implementazione metodo
+		
 		public List<DefaultEdge> trovaSequenza(){
 				List<DefaultEdge> best=new ArrayList<DefaultEdge> ();
 				for( Airport d: graph.vertexSet()){
@@ -51,12 +70,12 @@
 				}
 				return best;	
 			}
-		//metodo
+			
 		//RICORSIONE
+		
 		private void scegli(List<DefaultEdge> parziale, int livello, List<DefaultEdge> best, Airport d) {
 				
-				// lo svolgo sugli archi perchè se no non considero alcune partite,
-				// in quanto la squadra svolge piu partite sia in casa che in trasferta
+   // lo svolgo sugli archi perchè se no non considero alcune partite, in quanto la squadra svolge piu partite in casa che in trasferta
 				if(parziale.size() > best.size()){ 	best.clear();  //se parziale >cammino MAX  -> sostituisco
 													best.addAll(parziale);
 													System.out.println(best.toString());} 
@@ -75,21 +94,10 @@
 			}
 			 
 			
-	/**
-	 * RICORSIONE 3
-	 
-		a. Quando l’utente seleziona la funzione “Domino”, occorre ricercare e stampare la più lunga sequenza di
-			partite “concatenate”, in cui ciascuna squadra sconfitta in una partita diviene vincitrice nella partita
-			successiva. Ad esempio, la sequenza potrà essere: TeamA, TeamC, TeamK, se nella partita TeamA-TeamC è
-			risultato vincitore TeamA, e nella partita TeamC-TeamK è risultato vincitore TeamC.
-		b. Suggerimento: dal punto di vista del grafo, occorre trovare un cammino (aperto), di lunghezza massima, che
-			attraversi unicamente archi con peso +1. Gli archi con peso 0 oppure -1 non devono essere considerati.
-		c. Si noti che il cammino potrebbe non essere semplice (cioè lo stesso vertice potrebbe comparire più volte).
-			Ad esempio: A-B, B-C, C-D, D-A, A-E, E-F. In questo caso A ha vinto su B e su E, ma ha perso da D. In ogni
-			caso, ogni arco può essere utilizzato una sola volta (ad esempio, abbiamo potuto usare A-E, ma non sarebbe
-			stato lecito ripetere di nuovo A-B).
-		d. Al termine della ricerca, si stampi tale cammino.
-	*/	
+/**
+--------------------------------------------------------------
+ * RICORSIONE 3
+*/	
 		private List<Airport> best;
 		private List<DefaultWeightedEdge> bestArchi;
 			
@@ -109,7 +117,8 @@
 		private void recursive(List<DefaultWeightedEdge> parzialeArchi) {
 				// condizione terminazione == tutte le possibili ==> termina da solo
 				//controllo se la dim di parziale è > best aggiorno best
-				//System.out.println(parzialeArchi.toString()+"\n");			
+				//System.out.println(parzialeArchi.toString()+"\n");	
+						
 				if(parzialeArchi.size() >= bestArchi.size()){
 					bestArchi.clear();
 					bestArchi.addAll(parzialeArchi);
@@ -117,7 +126,8 @@
 				}			
 				for(DefaultWeightedEdge edge : graph.edgeSet()){
 					if(graph.getEdgeWeight(edge)==1){
-						if(!parzialeArchi.contains(edge) && (parzialeArchi.size()==0 || graph.getEdgeTarget(parzialeArchi.get(parzialeArchi.size()-1)).equals(graph.getEdgeSource(edge)))){
+						if(!parzialeArchi.contains(edge) && (parzialeArchi.size()==0 
+								|| graph.getEdgeTarget(parzialeArchi.get(parzialeArchi.size()-1)).equals(graph.getEdgeSource(edge)))){
 							parzialeArchi.add(edge);
 							recursive(parzialeArchi);
 							parzialeArchi.remove(edge);
@@ -126,3 +136,19 @@
 				}
 						
 			}
+
+			
+/** 		
+--------------------------------------------------------------
+RICORSIONE 4	
+a. Facendo click sul pulsante “DreamTeam”, individuare un dream team.
+b. Definiamo come team un gruppo di K piloti. La dimensione K del team viene stabilita dall’utente con
+l’apposita casella di testo.
+c. Il tasso di sconfitta di un team è definito come il numero totale di vittorie di un qualsiasi pilota non
+appartenente al team su un qualsiasi pilota appartenente al team.
+d. Un dream team è un team di K piloti che abbia il minimo tasso di sconfitta.
+Suggerimento: utilizzare un algoritmo ricorsivo per esplorare gli insiemi di K piloti.
+Suggerimento 2: effettuare delle prove con valori di K piccoli (1, 2 o 3).
+
+*/
+

@@ -12,9 +12,9 @@ CONNECTIVITY INSPECTOR
 
 	private ConnectivityInspector<Airport,DefaultWeightedEdge> ci;
 
-	/* Escludendo gli aeroporti con zero rotte, determinare se nel grafo ottenuto è possibile da ogni aeroporto
-	raggiungere ogni altro aeroporto.
-	----->>> fortemente connesso?  */	
+/* Escludendo gli aeroporti con zero rotte, determinare se nel grafo ottenuto è possibile da ogni aeroporto
+raggiungere ogni altro aeroporto.
+----->>> fortemente connesso?  */	
 	
 	public String isConnesso () {
 		ci = new ConnectivityInspector<>(this.graph);
@@ -22,19 +22,19 @@ CONNECTIVITY INSPECTOR
 		else return "il grafo---> non fortemente connesso";
 	}
 			
-	/* lista degli aereoporti connessi */
+/* lista degli aereoporti connessi */
 		
 	 public List<Set<Airport>> getConn(){	
 			ci = new ConnectivityInspector<>(this.graph);
 			return ci.connectedSets();
 		}
 		
-	/* numero degli aereoporti connessi */
+/* numero degli aereoporti connessi */
 		public int getNumberConn(){
 			return this.getConn().size();
 		}
 
-	/* trovo (max) degli aereoporti connessi */
+/* trovo (max) degli aereoporti connessi */
 		public Set<Airport> MAXconnesso() {
 			Set<Airport> MAX=null;
 			Double size=0.0;
@@ -47,12 +47,12 @@ CONNECTIVITY INSPECTOR
 			return MAX;	
 		}
 	
-	/* trovo (max size) aereoporti connessi */
+/* trovo (max size) aereoporti connessi */
 		public int MAXconnessioni() {
 			return this.MAXconnesso().size();		
 		}
 			
-	/* trovo 5 achi con peso minimo di (max size) */				 
+/* trovo 5 achi con peso minimo di (max size) */				 
 		
 		public List<EdgePeso> get5ArchiMinWeight (){
 

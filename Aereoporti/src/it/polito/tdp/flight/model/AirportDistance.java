@@ -11,10 +11,25 @@ public class AirportDistance {
 		this.distance = distance;
 		this.setTratte(tratte) ;
 	}
+	
+	public AirportDistance(Airport airport) {
+		super();
+		this.airport = airport;
+	}
+
 	public Airport getAirport() {		return airport;	}
 	public void setAirport(Airport airport) {		this.airport = airport;	}
 	public double getDistance() {		return distance;	}
 	public void setDistance(double distance) {		this.distance = distance;	}
 	public int getTratte() {		return tratte;	}
 	public void setTratte(int tratte) {		this.tratte = tratte;	}
+
+	@Override
+	public String toString() {
+		return "AirportDistance [airport=" + airport + ", distance=" + distance + ", tratte=" + tratte + "] \n";
+	}
+
+	
+	
+	
 }

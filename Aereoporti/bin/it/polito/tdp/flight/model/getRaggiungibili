@@ -6,15 +6,16 @@
 6) predecessori
 7) raggiungibili (visita in  profondità)
 8) numero di raggiungibili (visita in  profondità)
-9)BELLMANcalcolaPercorso(Airport partenza)
+9) BELLMANcalcolaPercorso(Airport partenza)
 
-//get raggiungibili	
+/*Si permetta all’utente di selezionare un aeroporto tra quelli raggiunti dalla compagnia aerea, e determinare
+tutti gli aeroporti da esso raggiungibili con viaggi di una o più tratte. L’elenco deve essere ordinato per
+distanza crescente (in km) rispetto all’aeroporto di partenza. */
 	 
 	public List<AirportDistance> getDestinations(Airline airline, Airport start) {
 
 			List<AirportDistance> list = new ArrayList<>();
-
-			for (Airport end : reachedAirports) {
+			for (Airport end : this.getAllReachedAirport(airline)) {
 				DijkstraShortestPath<Airport, DefaultWeightedEdge> dsp = new DijkstraShortestPath<>(graph, start, end);
 				GraphPath<Airport, DefaultWeightedEdge> p = dsp.getPath();
 				if (p != null) {

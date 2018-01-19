@@ -42,14 +42,18 @@ public class FlightController {
 
 	@FXML
 	void doCreaGrafo(ActionEvent event) {
-		txtResult.clear();
-		String sDist =this.txtDistanzaInput.getText();
 		
+		txtResult.clear();
+		
+	/** SCELTA O INSERIMENTO  */
+		
+	//INSERIMENTO STINGA DA TRASFORMARE IN INT
+		String sDist =this.txtDistanzaInput.getText();		
 		if(sDist.equals("")){
 			txtResult.appendText("ERRORE: Inserire una distanza massima\n");
 			return;
-		}
-		
+		}	
+		//trasformo in int
 		int dist;
 		try{
 		 dist=Integer.parseInt(sDist);
@@ -58,135 +62,52 @@ public class FlightController {
 			return;
 		}
 		
-		model.creaGrafo(dist);
-			
-		txtResult.appendText("Aereoporto pi� lontano da Fiumicino "+model.getPiLontanoByVoloDiretto(1555).toString()+"\n");
 		
-	}
-	 @FXML
-	    void doRaggiungibili(ActionEvent event) {
-	    	
-	 
-	    	Airline airline = boxAirline.getValue() ;
-	    	Airport start = boxAirport.getValue() ;
-	    	if(airline==null || start==null) {
-	    		txtResult.appendText("Selezionare compagnia e aeroporto\n") ;
-	    		return ;
-	    	}
-	    	
+	//SCEGLIERE DA COMBOBOX AIRLINE E AIRPORT
+    	Airline airline = boxAirline.getValue() ;
+    	if(airline==null ) {
+    		txtResult.appendText("Selezionare compagnia \n") ;
+    		return ;
+    	}
+    	Airport start = boxAirport.getValue() ;
+    	if(start==null) {
+    		txtResult.appendText("Selezionare aeroporto \n") ;
+    		return ;
+    	}
+	//	-------------
+		
+	//richiamo metodo void----> la stampa la devo fare nel model con una stringa o system.out.println(graph);
+		model.creaGrafo(dist);
+
+	//richiamo metodo String
+		model.isConnesso();
+	
+	//Stampo metodi LONTANO
+		txtResult.appendText("Aereoporto pi� lontano da LosAngeles non raggiungibile "+model.getLontanissimo(3484).toString()+"\n");
+		txtResult.appendText("Aereoporto pi� lontano da Fiumicino "+model.getPiLontano(1555).toString()+"\n");
+		txtResult.appendText("Aereoporto pi� lontano da Fiumicino con volo diretto "
+										+ model.getPiLontanoByVoloDiretto(1555).toString()+"\n");
+		
+	
+	//RICHIAMO LISTA PER POI STAMPARLA 
+		
 	    	List<AirportDistance> list = model.getDestinations(airline, start) ;
-	    	
-	    	txtResult.clear();
+	     	txtResult.clear();
 	    	txtResult.appendText("Distanze da "+start.getName()+"\n");
 	    	for(AirportDistance ad: list)
 	    		txtResult.appendText(String.format("%s (%.2f km) - %d steps\n", 
 	    				ad.getAirport().getName(), ad.getDistance(), ad.getTratte()));
-	    }
 
-	    @FXML
-	    void doServiti(ActionEvent event) {
-
-	    	Airline airline = boxAirline.getValue() ;
-	    	if(airline==null) {
-	    		txtResult.appendText("Devi selezionare una compagnia aerea\n");
-	    		return ;
-	    	}
+   // STAMPA AEREOPORTI RAGGIUNTI
 	    	
-	    	// Popola la seconda tendina con gli aeroporti raggiungibili
-	    	List<Airport> reachedAirports = model.getReachedAirports(airline) ;
-	    	boxAirport.getItems().clear();
-	    	boxAirport.getItems().addAll(reachedAirports);
-	    	
-	    	// Costruisci il grafo
-	    	model.buildGraph(airline) ;
-
-	    	// Stampa aeroporti raggiunti
 	    	txtResult.clear();
+	    	List<Airport> reachedAirports = model.getReachedAirports(airline) ;
 	    	txtResult.appendText("Aeroporti raggiunti da "+airline.getName()+"\n");
 	    	for(Airport a: reachedAirports) {
 	    		txtResult.appendText(a.getName()+"\n") ;
 	    	}
-	    }
-	
-	    
-//	    Airport a = boxAirport.getValue() ;
-//    	if(airline==null) {
-//    		txtResult.appendText("Devi selezionare una compagnia aerea\n");
-//    		return ;
-//    	}
-//	    //connesso  & n di connessioni
-//	      txtResult.appendText(model.isConnesso());	
-//	      int conn=model.getNumberConn();
-//			  txtResult.appendText("connessioni :" + conn +"\n");
-//		 
-//		//visita in ampiezza	  
-//		 List<Airport> list=model.getRaggiungibiliInAmpiezza(d,s); 
-//		    for(Airport driver:list){
-//		        	txtResult.appendText(driver.toString()+"\n");
-//		        }  
-//		 //vicini	  
-//		 List<Airport> vicini=model.trovaVicini(d); 
-//			for(Airport d1:vicini){
-//			        txtResult.appendText(d1.toString()+"\n");
-//			        }  
-//		//bellman & n di connessioni
-//			String bellman = model.calcolaPercorsoBELLMAN(d); 
-//			txtResult.appendText(bellman.toString()+"\n");
-//			int connBELLMAN=model.getNumConn(d);
-//				txtResult.appendText("connessioni Belllman:" + connBELLMAN +"\n");
-//			         
-//		}
-//		//Airport best/worst
-//		model.creaGrafo();
-//		Airport bestD = model.getBestAirport();
-//			txtResult.appendText("Airport migliore del " + s.getYear() + " � " + bestD.toString() + "\n");
-//		Airport worstD = model.getWorstAirport();
-//			txtResult.appendText("Airport peggiore del " + s.getYear() + " � " + worstD.toString() + "\n");
- 	    
-	    
-	    
-	    
-
-	
-	/**  @FXML
-    void calcolaPercorso(ActionEvent event) {
-  
-
-		Airport c1 = BoxAirport.getValue();
-		Airport c2 = BoxAirport.getValue();
-
-		if (c1!= null && c2 != null) {
-
-			if (!c1.equals(c2)) {
-
-				try {
-					// Calcolo il percorso tra le due stazioni
-					model.getCamminoMinimo(c1, c2);
-
-					// Ottengo il tempo di percorrenza
-					int tempoTotaleInSecondi = (int) model.getPercorsoTempoTotale();
-					int ore = tempoTotaleInSecondi / 3600;
-					int minuti = (tempoTotaleInSecondi % 3600) / 60;
-					int secondi = tempoTotaleInSecondi % 60;
-					String timeString = String.format("%02d:%02d:%02d", ore, minuti, secondi);
-
-					StringBuilder risultato = new StringBuilder();
-					// Ottengo il percorso
-					risultato.append(model.getPercorsoEdgeList());
-					risultato.append("\n\nTempo di percorrenza stimato: " + timeString + "\n");
-
-					// Aggiorno la TextArea
-					txtResult.setText(risultato.toString());
-					
-				} catch (RuntimeException e) {
-					txtResult.setText(e.getMessage());	}
-			} 
-		  else {			txtResult.setText("Inserire una stazione di arrivo diversa da quella di partenza.");}
-	     }
-	   else { txtResult.setText("Inserire una stazione di arrivo ed una di partenza.");}
-	}
-*/   
-	
+       
+   }    	
 	@FXML
 	void initialize() {
 		assert txtDistanzaInput != null : "fx:id=\"txtDistanzaInput\" was not injected: check your FXML file 'Untitled'.";
