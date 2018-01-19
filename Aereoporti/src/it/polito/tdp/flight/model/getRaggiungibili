@@ -1,6 +1,6 @@
 1) raggiungibili data Airline e aereoporto di partenza (dijkstra)
 2) raggiungibili da query data Airline
-3) tutti raggiungibili data airlaine
+3) tutti raggiungibili calcolando tratte e distanza data airlaine
 4) CAMMINO MINIMO e TEMPO TOT CAMMINO 
 5) successori
 6) predecessori
@@ -8,6 +8,50 @@
 8) numero di raggiungibili (visita in  profondità)
 9) BELLMANcalcolaPercorso(Airport partenza)
 
+
+
+public List<Airport> getReachedAirports(Airline airline) {  //reached=raggiunti
+			if (this.myAirline == null || !this.myAirline.equals(airline)) {
+				this.myAirline = airline;
+				
+				FlightDAO dao = new FlightDAO();
+			//prendo lista e trasformo in mappa	
+				List<Integer> airportIds = dao.getReachedAirportsID(this.myAirline);				
+				this.reachedAirports = new ArrayList<Airport>();
+				for (Integer id : airportIds)
+					this.reachedAirports.add(airportMap.get(id));
+			//ordino per nome
+				this.reachedAirports.sort(new Comparator<Airport>() {
+					@Override
+					public int compare(Airport o1, Airport o2) {
+						return o1.getName().compareTo(o2.getName());
+					}
+				});
+
+			}
+
+			return this.reachedAirports;
+		}
+
+
+//QUERY		
+	public List<Airport> getAeroportiRaggiunti(Airline air)
+		{
+				public List<Airport> getAeroportiRaggiunti(Airline air){
+			List<Airport>a=dao.getAeroportiRaggiunti(air);
+			a.sort(new Comparator<Airport>() {
+				@Override
+				public int compare(Airport o1, Airport o2) {
+					return o1.getName().compareTo(o2.getName());
+				}
+			});
+
+			return a;
+		}	
+		}
+			
+		
+		
 /*Si permetta all’utente di selezionare un aeroporto tra quelli raggiunti dalla compagnia aerea, e determinare
 tutti gli aeroporti da esso raggiungibili con viaggi di una o più tratte. L’elenco deve essere ordinato per
 distanza crescente (in km) rispetto all’aeroporto di partenza. */
@@ -32,34 +76,9 @@ distanza crescente (in km) rispetto all’aeroporto di partenza. */
 		}
 	 
 	
-	public List<Airport> getAeroportiRaggiunti(Airline air)
-		{
-			return dao.getAeroportiRaggiunti(air);
-		}
+
 	
 	
-	public List<Airport> getReachedAirports(Airline airline) {  //reached=raggiunti
-			if (this.myAirline == null || !this.myAirline.equals(airline)) {
-				this.myAirline = airline;
-				
-				FlightDAO dao = new FlightDAO();
-			//prendo lista e trasformo in mappa	
-				List<Integer> airportIds = dao.getReachedAirportsID(this.myAirline);				
-				this.reachedAirports = new ArrayList<Airport>();
-				for (Integer id : airportIds)
-					this.reachedAirports.add(airportMap.get(id));
-			//ordino per nome
-				this.reachedAirports.sort(new Comparator<Airport>() {
-					@Override
-					public int compare(Airport o1, Airport o2) {
-						return o1.getName().compareTo(o2.getName());
-					}
-				});
-
-			}
-
-			return this.reachedAirports;
-		}
 
 	/**
 	 * CAMMINO MINIMO e TEMPO TOT CAMMINO 
